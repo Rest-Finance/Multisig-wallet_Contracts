@@ -27,7 +27,7 @@ contract MultisigWallet is SimpleWallet {
 
     function initWithdraw(uint256 amount, address to) public onlyOwner {
         address[] memory confirmedBy = new address[](1);
-        confirmedBy[0] = owners[owners_id[msg.sender]];
+        confirmedBy[0] = msg.sender;
 
         Withdraw memory newWithdraw = Withdraw(
             true,
