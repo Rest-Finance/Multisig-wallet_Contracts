@@ -23,7 +23,6 @@ describe("Owners", function () {
     const Owners = await ethers.getContractFactory("Owners");
     const owners = await Owners.deploy();
     await owners.deployed();
-    owners.on("NewPendingOwner", (props) => console.log(props));
     const [owner] = await ethers.getSigners();
 
     try {

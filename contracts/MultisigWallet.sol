@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./SimpleWallet.sol";
+import "./Owners.sol";
 
-contract MultisigWallet is SimpleWallet {
+contract MultisigWallet is Owners {
     struct Withdraw {
         uint256 at;
         bool pending;
@@ -13,6 +13,7 @@ contract MultisigWallet is SimpleWallet {
         address[] confirmedBy;
         address[] neededOwners;
         uint256 amount;
+        address token;
     }
     Withdraw public pendingTransaction;
     enum WithdrawSteps {
@@ -26,13 +27,15 @@ contract MultisigWallet is SimpleWallet {
         address to,
         address[] confirmedBy,
         address[] neededOwners,
-        uint256 amount
+        uint256 amount,
+        address token
     );
 
     function initWithdraw(
         uint256 amount,
         address to,
-        address[] memory neededOwners
+        address[] memory neededOwners,
+        address token
     ) public onlyOwner {
         require(
             block.timestamp - pendingTransaction.at > 10 * 60,
@@ -60,7 +63,8 @@ contract MultisigWallet is SimpleWallet {
             to,
             confirmedBy,
             neededOwners,
-            amount
+            amount,
+            token
         );
         emit WithdrawStep(
             WithdrawSteps.INIT,
@@ -68,7 +72,8 @@ contract MultisigWallet is SimpleWallet {
             pendingTransaction.to,
             pendingTransaction.confirmedBy,
             pendingTransaction.neededOwners,
-            pendingTransaction.amount
+            pendingTransaction.amount,
+            pendingTransaction.token
         );
     }
 
@@ -102,31 +107,30 @@ contract MultisigWallet is SimpleWallet {
             pendingTransaction.to,
             pendingTransaction.confirmedBy,
             pendingTransaction.neededOwners,
-            pendingTransaction.amount
+            pendingTransaction.amount,
+            pendingTransaction.token
         );
-
-        if (
-            pendingTransaction.confirmedBy.length ==
-            pendingTransaction.neededOwners.length
-        ) {
-            execWithdraw(pendingTransaction.to, pendingTransaction.amount);
-        }
     }
 
-    function execWithdraw(address to, uint256 amount) private onlyOwner {
-        payable(to).transfer(amount);
+    function execWithdraw() public onlyOwner {
+        require(
+            pendingTransaction.confirmedBy.length ==
+                pendingTransaction.neededOwners.length,
+            "Confirmation step not over"
+        );
+        ERC20(pendingTransaction.token).transfer(
+            pendingTransaction.to,
+            pendingTransaction.amount
+        );
         emit WithdrawStep(
             WithdrawSteps.EXEC,
             block.timestamp,
             pendingTransaction.to,
             pendingTransaction.confirmedBy,
             pendingTransaction.neededOwners,
-            pendingTransaction.amount
+            pendingTransaction.amount,
+            pendingTransaction.token
         );
         delete pendingTransaction;
-    }
-
-    function withdraw(address to, uint256 amount) public payable override {
-        revert("disabled");
     }
 }
