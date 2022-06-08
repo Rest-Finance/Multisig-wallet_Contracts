@@ -89,21 +89,95 @@ describe("MultisigWallet", function () {
     const multisig = await Multisig.deploy();
     await multisig.deployed();
     const provider = ethers.provider;
+    multisig.on("NewPendingOwner", (props) => console.log(props));
 
     const [owner, bob, alice] = await ethers.getSigners();
-    const initBalance = parseFloat(
-      ethers.utils.formatEther(await provider.getBalance(bob.address))
-    );
-    await multisig.deposit({ value: ethers.utils.parseEther("1") });
+    const events = (
+      await (await multisig.initNewOwner(bob.address, [owner.address])).wait()
+    ).events as any[];
 
-    await multisig.requestNewOwner(bob.address, [owner.address]);
-    // const response = await multisig.allowOwner(bob.address);
-    console.log(await multisig.getOwners());
+    expect(events[0].event).to.equal("AllowOwnerStep");
+    expect(events.length).to.be.greaterThan(0);
+    expect(events[0].args.length).to.be.greaterThan(0);
+    expect(events[0].args[0]).to.equal(owner.address);
+    expect(events[0].args[3]).to.equal(bob.address);
+    expect(events[0].args[1]).to.equal(0);
+  });
 
-    await multisig.requestNewOwner(alice.address, [bob.address, owner.address]);
-    await multisig.allowOwner(alice.address);
-    await multisig.connect(bob).allowOwner(alice.address);
+  it("Request new owner but failed because new owner already a owner", async () => {
+    const Multisig = await ethers.getContractFactory("MultisigWallet");
+    const multisig = await Multisig.deploy();
+    await multisig.deployed();
+    const provider = ethers.provider;
+    multisig.on("NewPendingOwner", (props) => console.log(props));
+    const [owner, bob, alice] = await ethers.getSigners();
 
-    console.log(await multisig.getOwners());
+    try {
+      expect(
+        await multisig.initNewOwner(owner.address, [owner.address])
+      ).to.throw("");
+    } catch (e) {
+      expect((e as Error).message).to.equal(
+        "VM Exception while processing transaction: reverted with reason string 'Address already an owner'"
+      );
+    }
+  });
+
+  it("Request new owner but failed because needed owner is not an owner", async () => {
+    const Multisig = await ethers.getContractFactory("MultisigWallet");
+    const multisig = await Multisig.deploy();
+    await multisig.deployed();
+    const provider = ethers.provider;
+    multisig.on("NewPendingOwner", (props) => console.log(props));
+    const [owner, bob, alice] = await ethers.getSigners();
+
+    try {
+      expect(
+        await multisig.initNewOwner(bob.address, [alice.address])
+      ).to.throw("");
+    } catch (e) {
+      expect((e as Error).message).to.equal(
+        "VM Exception while processing transaction: reverted with reason string 'Need a list of owner'"
+      );
+    }
+  });
+
+  it("Confirm new owner", async () => {
+    const Multisig = await ethers.getContractFactory("MultisigWallet");
+    const multisig = await Multisig.deploy();
+    await multisig.deployed();
+    const provider = ethers.provider;
+
+    const [owner, bob, alice] = await ethers.getSigners();
+    await multisig.initNewOwner(bob.address, [owner.address]);
+    const events = (await (await multisig.confirmNewOwner(bob.address)).wait())
+      .events as any[];
+
+    expect(events[0].event).to.equal("AllowOwnerStep");
+    expect(events.length).to.be.greaterThan(0);
+    expect(events[0].args.length).to.be.greaterThan(0);
+    expect(events[0].args[4].length).to.equal(1);
+    expect(events[0].args[4][0]).to.equal(owner.address);
+    expect(events[0].args[4].length).to.equal(events[0].args[5].length);
+    expect(events[0].args[1]).to.equal(1);
+  });
+
+  it("Exec new owner", async () => {
+    const Multisig = await ethers.getContractFactory("MultisigWallet");
+    const multisig = await Multisig.deploy();
+    await multisig.deployed();
+    const provider = ethers.provider;
+
+    const [owner, bob, alice] = await ethers.getSigners();
+    await multisig.initNewOwner(bob.address, [owner.address]);
+    await multisig.confirmNewOwner(bob.address);
+    const events = (await (await multisig.execNewOwner(bob.address)).wait())
+      .events as any[];
+
+    expect(events[0].event).to.equal("AllowOwnerStep");
+    expect(events.length).to.be.greaterThan(0);
+    expect(events[0].args.length).to.be.greaterThan(0);
+    expect(events[0].args[4].length).to.equal(events[0].args[5].length);
+    expect(events[0].args[1]).to.equal(2);
   });
 });

@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract SimpleWallet {
     address[] public owners;
     mapping(address => uint256) owners_id;
+    event NewOwner(uint256 at, address from, address to);
 
     modifier onlyOwner() {
         require(owners[owners_id[msg.sender]] == msg.sender, "Not Allowed");
@@ -16,6 +17,13 @@ contract SimpleWallet {
     constructor() {
         owners_id[msg.sender] = owners.length;
         owners.push(msg.sender);
+    }
+
+    function addOwner(address newOwner) public virtual onlyOwner {
+        owners_id[newOwner] = owners.length;
+        owners.push(newOwner);
+
+        emit NewOwner(block.timestamp, msg.sender, newOwner);
     }
 
     function deposit() public payable {
@@ -29,10 +37,5 @@ contract SimpleWallet {
         onlyOwner
     {
         payable(to).transfer(amount);
-    }
-
-    function addOwner(address new_owner) public virtual onlyOwner {
-        owners_id[new_owner] = owners.length;
-        owners.push(new_owner);
     }
 }

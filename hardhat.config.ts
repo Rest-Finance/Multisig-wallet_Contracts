@@ -30,14 +30,6 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    hardhat: {
-      chainId: 1337,
-
-      forking: {
-        enabled: true,
-        url: `https://mainnet.infura.io/v3/15285e4a2f52498992b87f46f5755d60`,
-      },
-    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
