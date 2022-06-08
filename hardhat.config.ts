@@ -27,8 +27,20 @@ const config: HardhatUserConfig = {
   networks: {
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
+      gas: 2100000,
+      gasPrice: 8000000000,
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    fuji: {
+      url: "https://api.avax-test.network/ext/bc/C/rpc",
+      gasPrice: 225000000000,
+      chainId: 43113,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined &&
+        process.env.PRIVATE_KEY2 !== undefined
+          ? [process.env.PRIVATE_KEY, process.env.PRIVATE_KEY2]
+          : [],
     },
   },
   gasReporter: {
