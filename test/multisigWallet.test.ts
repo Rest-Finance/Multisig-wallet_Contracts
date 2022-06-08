@@ -85,13 +85,12 @@ describe("MultisigWallet", function () {
   // });
 
   it("Request new owner", async () => {
-    const Multisig = await ethers.getContractFactory("MultisigWallet");
+    const Multisig = await ethers.getContractFactory("Owners");
     const multisig = await Multisig.deploy();
     await multisig.deployed();
     const provider = ethers.provider;
-    multisig.on("NewPendingOwner", (props) => console.log(props));
-
     const [owner, bob, alice] = await ethers.getSigners();
+    console.log(multisig.address);
     const events = (
       await (await multisig.initNewOwner(bob.address, [owner.address])).wait()
     ).events as any[];
