@@ -34,9 +34,14 @@ contract Owners {
         _;
     }
 
-    constructor() {
-        owners_id[msg.sender] = owners.length;
-        owners.push(msg.sender);
+    function seedAfterCloned(address ownerAddress) public {
+        require(owners.length == 0, "Contract already initialized");
+        owners_id[ownerAddress] = owners.length;
+        owners.push(ownerAddress);
+    }
+
+    function getOwners() public view returns (address[] memory) {
+        return owners;
     }
 
     function initNewOwner(address ownerAddress, address[] memory neededOwners)

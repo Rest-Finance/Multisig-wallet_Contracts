@@ -87,4 +87,12 @@ describe("Owners", function () {
     expect(events[0].args[4].length).to.equal(events[0].args[5].length);
     expect(events[0].args[1]).to.equal(2);
   });
+
+  it("should return owners", async () => {
+    const Owners = await ethers.getContractFactory("Owners");
+    const owners = await Owners.deploy();
+    await owners.deployed();
+    const response = await owners.getOwners()
+    console.log(response);
+  })
 });
