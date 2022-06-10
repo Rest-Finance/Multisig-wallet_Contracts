@@ -32,5 +32,9 @@
     "ts-node": "^10.8.0",
     "typechain": "^5.2.0",
     "typescript": "^4.7.2"
+  },
+  "dependencies": {
+    "@optionality.io/clone-factory": "^0.2.1",
+    "zeppelin-solidity": "^1.12.0"
   }
 }
