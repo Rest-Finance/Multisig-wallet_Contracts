@@ -1,4 +1,5 @@
 import { ethers } from "hardhat";
+import ERC20 from "@openzeppelin/contracts/build/contracts/ERC20.json";
 
 async function main() {
   const MultisigWallet = await ethers.getContractFactory("MultisigWallet");
@@ -13,7 +14,6 @@ async function main() {
 
   await factory.setRefContractAddress(multisig.address);
 }
-
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;

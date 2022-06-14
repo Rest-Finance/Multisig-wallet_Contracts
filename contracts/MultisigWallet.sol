@@ -47,8 +47,8 @@ contract MultisigWallet is Owners {
 
         for (uint256 i = 0; i < neededOwners.length; i++) {
             bool addressIsOwner = false;
-            for (uint256 j = 0; j < owners.length; j++) {
-                if (neededOwners[i] == owners[j]) {
+            for (uint256 j = 0; j < _owners.length; j++) {
+                if (neededOwners[i] == _owners[j]) {
                     addressIsOwner = true;
                 }
             }

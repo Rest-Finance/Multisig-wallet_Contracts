@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 contract Owners {
-    address[] public owners;
-    mapping(address => uint256) owners_id;
+    address[] public _owners;
+    mapping(address => uint256) _ownersIds;
 
     struct PendingOwner {
         uint256 at;
@@ -30,32 +30,32 @@ contract Owners {
     );
 
     modifier onlyOwner() {
-        require(owners[owners_id[msg.sender]] == msg.sender, "Not Allowed");
+        require(_owners[_ownersIds[msg.sender]] == msg.sender, "Not Allowed");
         _;
     }
 
     function seedAfterCloned(address ownerAddress) public {
-        require(owners.length == 0, "Contract already initialized");
-        owners_id[ownerAddress] = owners.length;
-        owners.push(ownerAddress);
+        require(_owners.length == 0, "Contract already initialized");
+        _ownersIds[ownerAddress] = _owners.length;
+        _owners.push(ownerAddress);
     }
 
-    function getOwners() public view returns (address[] memory) {
-        return owners;
+    function getOwners() public view onlyOwner returns (address[] memory) {
+        return _owners;
     }
 
     function initNewOwner(address ownerAddress, address[] memory neededOwners)
         public
         onlyOwner
     {
-        for (uint256 i = 0; i < owners.length; i++) {
-            require(ownerAddress != owners[i], "Address already an owner");
+        for (uint256 i = 0; i < _owners.length; i++) {
+            require(ownerAddress != _owners[i], "Address already an owner");
         }
 
         for (uint256 i = 0; i < neededOwners.length; i++) {
             bool isNeededOwneraOwner = false;
-            for (uint256 j = 0; j < owners.length; j++) {
-                if (owners[j] == neededOwners[i]) {
+            for (uint256 j = 0; j < _owners.length; j++) {
+                if (_owners[j] == neededOwners[i]) {
                     isNeededOwneraOwner = true;
                 }
             }
@@ -122,8 +122,8 @@ contract Owners {
             pendingOwner.approvedBy.length == pendingOwner.neededOwners.length,
             "Confirmation step not over"
         );
-        owners_id[ownerAddress] = owners.length;
-        owners.push(ownerAddress);
+        _ownersIds[ownerAddress] = _owners.length;
+        _owners.push(ownerAddress);
         emit AllowOwnerStep(
             msg.sender,
             AllowOwnerSteps.EXEC,
