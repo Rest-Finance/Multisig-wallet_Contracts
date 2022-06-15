@@ -19,7 +19,7 @@ describe("Owners", function () {
     expect(events[0].args[1]).to.equal(0);
   });
 
-  it("Request new owner but failed because new owner already a owner", async () => {
+  it("Request new owner but failed because new owner already an owner", async () => {
     const Owners = await ethers.getContractFactory("Owners");
     const owners = await Owners.deploy();
     await owners.deployed();

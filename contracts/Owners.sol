@@ -63,13 +63,13 @@ contract Owners {
         }
 
         for (uint256 i = 0; i < neededOwners.length; i++) {
-            bool isNeededOwneraOwner = false;
+            bool isNeededOwneranOwner = false;
             for (uint256 j = 0; j < _owners.length; j++) {
                 if (_owners[j] == neededOwners[i]) {
-                    isNeededOwneraOwner = true;
+                    isNeededOwneranOwner = true;
                 }
             }
-            require(isNeededOwneraOwner, "Need a list of owner");
+            require(isNeededOwneranOwner, "Need a list of owner");
         }
 
         address[] memory confirmedBy;

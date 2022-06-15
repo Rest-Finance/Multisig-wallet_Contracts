@@ -13,8 +13,3 @@ export const tokens = [
 ];
 
 export const provider = new ethers.providers.Web3Provider(window.ethereum);
-
-export const getBalance = async () => {
-  for await (const token of tokens) {
-  }
-};

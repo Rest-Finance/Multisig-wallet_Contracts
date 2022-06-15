@@ -5,13 +5,11 @@ import { PendingOwner } from "./PendingOwner.view";
 import {IoCloseSharp} from 'react-icons/io5'
 
 type WalletDashboardType = {
-  isRowSelected: boolean;
   contract: IMultisig;
   closeModal: () => void;
 };
 
 export const WalletDashboard: FC<WalletDashboardType> = ({
-  isRowSelected,
   contract,
   closeModal,
 }) => {
@@ -25,15 +23,13 @@ export const WalletDashboard: FC<WalletDashboardType> = ({
     const getPendingOwners = async () => {
       setPendingOwners(await handleGetPendingOwners(contract.address));
     };
-    if (isRowSelected) getPendingOwners();
-  }, [isRowSelected]);
+    getPendingOwners();
+  }, []);
 
   return (
     <div className="absolute rounded-lg top-0 inset-x-0.5 z-10 shadow-lg shadow-zinc-600">
       <div
-        className={`relative ${
-          isRowSelected ? "block" : "hidden"
-        } bg-zinc-700 text-slate-200 p-5 rounded-lg`}
+        className={`relative block bg-zinc-700 text-slate-200 p-5 rounded-lg`}
       >
         <span
           onClick={closeModal}

@@ -10,7 +10,7 @@ import {
   getContractData,
   IContractData,
   getPendingOwners,
-  addAOwner,
+  addOwner,
   approveOwner,
   execOwner,
 } from "./web3.utils";
@@ -40,7 +40,7 @@ interface IWeb3 {
     handleGetPendingOwners: (
       contractAddress: string
     ) => Promise<IPendingOwner[]>;
-    handleAddAOwner: (
+    handleAddOwner: (
       contractAddress: string,
       to: string,
       neededOwners: string[]
@@ -64,7 +64,7 @@ const initialState = {
     handleCreateWallet: async () => {},
     formatAddress: (address: string) => "",
     handleGetPendingOwners: async () => [],
-    handleAddAOwner: async (
+    handleAddOwner: async (
       contractAddress: string,
       to: string,
       neededOwners: string[]
@@ -148,13 +148,13 @@ export const InitWeb3 = () => {
     return [];
   };
 
-  const handleAddAOwner = async (
+  const handleAddOwner = async (
     contractAddress: string,
     to: string,
     neededOwners: string[]
   ): Promise<IPendingOwner[]> => {
     if (account) {
-      return await addAOwner(contractAddress, account, to, neededOwners);
+      return await addOwner(contractAddress, account, to, neededOwners);
     }
     return [];
   };
@@ -200,7 +200,7 @@ export const InitWeb3 = () => {
       handleCreateWallet,
       formatAddress,
       handleGetPendingOwners,
-      handleAddAOwner,
+      handleAddOwner,
       handleApproveOwner,
       handleExecOwner,
     },

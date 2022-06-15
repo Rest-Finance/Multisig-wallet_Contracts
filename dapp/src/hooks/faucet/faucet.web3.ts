@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { provider, tokens } from "../web3.utils";
+import { provider, tokens } from "../utils.web3";
 import restTokenAbi from "./restToken.abi";
 
 export const mintRestToken = async (account: string): Promise<void> => {

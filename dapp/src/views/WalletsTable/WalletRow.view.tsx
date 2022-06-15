@@ -23,11 +23,7 @@ export const WalletRow: FC<WalletRowType> = ({
 
   return (
     <div key={contract.address}>
-      <div
-        className={`blur-${
-          selectedRow < 0 ? "none" : "md"
-        } flex md:flex-row  my-4`}
-      >
+      <div className={`flex md:flex-row  my-4`}>
         <div className="md:hidden flex justify-between md:justify-center flex-col text-violet-600 md:text-xl bg-slate-300 rounded p-2 w-1/4 md:w-full">
           <p className="w-full md:w-1/4 h-12 md:h-full flex justify-center items-center text-center md:block">
             Wallet address
@@ -46,7 +42,8 @@ export const WalletRow: FC<WalletRowType> = ({
             href={`https://testnet.snowtrace.io/address/${contract.address}`}
             target="_blank"
           >
-            {formatAddress(contract.address)} <IoChevronForwardOutline className="text-violet-500" />
+            {formatAddress(contract.address)}{" "}
+            <IoChevronForwardOutline className="text-violet-500" />
           </a>
           <div className="w-full md:w-1/4 h-24 md:h-full overflow-hidden md:text-center md:border-x border-slate-200 flex justify-center flex-col items-center md:block">
             {contract.owners.map((owner) => (
@@ -56,7 +53,8 @@ export const WalletRow: FC<WalletRowType> = ({
                 target="_blank"
                 className="flex justify-center items-center"
               >
-                {formatAddress(owner)}  <IoChevronForwardOutline className="text-violet-500" />
+                {formatAddress(owner)}{" "}
+                <IoChevronForwardOutline className="text-violet-500" />
               </a>
             ))}
           </div>
@@ -75,11 +73,6 @@ export const WalletRow: FC<WalletRowType> = ({
           </p>
         </div>
       </div>
-      <WalletDashboard
-        isRowSelected={selectedRow == i}
-        contract={contract}
-        closeModal={() => setSelectedRow(-1)}
-      />
     </div>
   );
 };

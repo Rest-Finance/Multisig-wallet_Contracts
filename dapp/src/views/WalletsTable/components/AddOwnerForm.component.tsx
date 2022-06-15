@@ -18,7 +18,7 @@ export const AddOwnerForm: FC<AddOwnerFormType> = ({
   const toogleIsOpen = () => setIsOpen(!isOpen);
 
   const {
-    funcs: { handleAddAOwner },
+    funcs: { handleAddOwner },
   } = useWeb3();
 
   const handleAddOwnerCheckbox = (owner: string) => {
@@ -31,7 +31,7 @@ export const AddOwnerForm: FC<AddOwnerFormType> = ({
 
   const submit = async () => {
     setPendingOwners(
-      await handleAddAOwner(contract.address, addOwnerInput, addOwnerCheckbox)
+      await handleAddOwner(contract.address, addOwnerInput, addOwnerCheckbox)
     );
   };
 
@@ -39,7 +39,7 @@ export const AddOwnerForm: FC<AddOwnerFormType> = ({
     <>
       {isOpen ? (
         <div className="mt-3 border p-4">
-          <p className="text-2xl text-center">Add a owner</p>
+          <p className="text-2xl text-center">Add an owner</p>
           <div className="mt-4">
             <input
               className="p-2 rounded text-slate-800 w-full"
@@ -79,7 +79,7 @@ export const AddOwnerForm: FC<AddOwnerFormType> = ({
             onClick={toogleIsOpen}
             className="italic underline text-violet-400"
           >
-            Add a owner
+            Add an owner
           </span>
         </div>
       )}
