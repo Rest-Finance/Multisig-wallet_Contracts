@@ -13,8 +13,7 @@ export const Header: FC = () => {
         <h1 className="text-3xl font-bold tracking-widest">MULTISIG</h1>
       </div>
       <div className="text-right">
-        <LightButton onClick={handleOnConnect} text="Connect wallet" />
-        {account && <p>{account}</p>}
+        <LightButton onClick={handleOnConnect} text={account ? account : "Connect wallet"} disabled={!!account} />
       </div>
     </div>
   );

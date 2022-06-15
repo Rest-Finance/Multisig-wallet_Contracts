@@ -1,8 +1,6 @@
-import { ethers } from "ethers";
+import { BigNumber, BigNumberish, ethers } from "ethers";
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import factoryAbi from "../factoryAbi";
-import multisigAbi from "../multisigAbi";
 import {
   connectToNetwork,
   createWallet,
@@ -13,7 +11,19 @@ import {
   getContractData,
   addTokenToMetamask,
   IContractData,
+  getPendingOwners,
+  addAOwner,
+  approveOwner,
+  execOwner,
 } from "./web3.utils";
+
+interface IPendingOwner {
+  at?: Date;
+  approvedBy?: string[];
+  from?: string;
+  neededOwners?: string[];
+  ownerAddress?: string;
+}
 
 interface IWeb3 {
   account?: string;
@@ -25,6 +35,16 @@ interface IWeb3 {
     handleMintToken: () => Promise<void>;
     handleAddTokenToMetamask: () => Promise<void>;
     formatAddress: (address: string) => string;
+    handleGetPendingOwners: (
+      contractAddress: string
+    ) => Promise<IPendingOwner[]>;
+    handleAddAOwner: (
+      contractAddress: string,
+      to: string,
+      neededOwners: string[]
+    ) => Promise<void>;
+    handleApproveOwner: (contractAddress: string, to: string) => Promise<void>;
+    handleExecOwner: (contractAddress: string, to: string) => Promise<void>;
   };
 }
 
@@ -37,6 +57,14 @@ const initialState = {
     handleMintToken: async () => {},
     handleAddTokenToMetamask: async () => {},
     formatAddress: (address: string) => "",
+    handleGetPendingOwners: async () => [],
+    handleAddAOwner: async (
+      contractAddress: string,
+      to: string,
+      neededOwners: string[]
+    ) => {},
+    handleApproveOwner: async (contractAddress: string, to: string) => {},
+    handleExecOwner: async (contractAddress: string, to: string) => {}, 
   },
 };
 
@@ -102,6 +130,58 @@ export const InitWeb3 = () => {
     return `${match[1]}…${match[2]}`;
   };
 
+  const handleGetPendingOwners = async (
+    contractAddress: string
+  ): Promise<IPendingOwner[]> => {
+    if (account) {
+      const pendingOwners = await getPendingOwners(contractAddress, account);
+      if (pendingOwners.length)
+        return pendingOwners.map(
+          ([at, from, ownerAddress, approvedBy, neededOwners]:
+            | string[]
+            | string[][]
+            | BigNumberish[]) => ({
+            at: new Date(parseInt(at.toString()) * 1000),
+            approvedBy,
+            from,
+            neededOwners,
+            ownerAddress,
+          })
+        );
+    }
+    return [];
+  };
+
+  const handleAddAOwner = async (
+    contractAddress: string,
+    to: string,
+    neededOwners: string[]
+  ) => {
+    if (account) {
+      const pendingOwners = await addAOwner(
+        contractAddress,
+        account,
+        to,
+        neededOwners
+      );
+      console.log(pendingOwners);
+    }
+  };
+
+  const handleApproveOwner = async (contractAddress: string, to: string) => {
+    if (account) {
+      const pendingOwners = await approveOwner(contractAddress, account, to);
+      console.log(pendingOwners);
+    }
+  };
+
+  const handleExecOwner = async (contractAddress: string, to: string) => {
+    if (account) {
+      const pendingOwners = await execOwner(contractAddress, account, to);
+      console.log(pendingOwners);
+    }
+  };
+
   useEffect(() => {
     if (window.ethereum) {
       const initAccount = async () => {
@@ -122,6 +202,10 @@ export const InitWeb3 = () => {
       handleMintToken,
       handleAddTokenToMetamask,
       formatAddress,
+      handleGetPendingOwners,
+      handleAddAOwner,
+      handleApproveOwner,
+      handleExecOwner,
     },
     account,
     contracts,

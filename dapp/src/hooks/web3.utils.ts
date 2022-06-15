@@ -1,5 +1,4 @@
 import { ethers } from "ethers";
-import { toast } from "react-toastify";
 import erc20Abi from "../erc20.abi";
 import factoryAbi from "../factoryAbi";
 import multisigAbi from "../multisigAbi";
@@ -21,7 +20,7 @@ export interface IContractData {
   }[];
 }
 
-export const factoryAddress = "0xe47d2dEe600a68f0f8132Bc4afcB0F46aF31644b";
+export const factoryAddress = "0xa645F946884F434E32923b6FE930a34092BCf4be";
 export const tokens = [
   {
     address: "0x951AD67A75D520c11FD08F98Cb148cc2dD0f8b8A",
@@ -29,8 +28,8 @@ export const tokens = [
   },
   {
     address: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c",
-    name: "WAVAX"
-  }
+    name: "WAVAX",
+  },
 ];
 
 export const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -137,17 +136,14 @@ export const getContractsData = async (
   contracts: IContractData[],
   setContracts: (contracts: IContractData[]) => void
 ) => {
-  console.log(account);
   if (account) {
     const contractsAddresses = await getContracts(account);
-    console.log(contractsAddresses);
+    const contractsData = [];
     for await (const contractAddress of contractsAddresses) {
       if (account)
-        setContracts([
-          ...contracts,
-          await getContractData(account, contractAddress),
-        ]);
+        contractsData.push(await getContractData(account, contractAddress));
     }
+    setContracts(contractsData);
   }
 };
 
@@ -177,4 +173,63 @@ export const addTokenToMetamask = async (account: string): Promise<void> => {
         },
       },
     });
+};
+
+export const getPendingOwners = async (
+  contractAddress: string,
+  account: string
+) => {
+  const contract = new ethers.Contract(
+    contractAddress,
+    multisigAbi,
+    provider.getSigner(account)
+  );
+
+  return await contract.getPendingOwners();
+};
+
+export const addAOwner = async (
+  contractAddress: string,
+  account: string,
+  to: string,
+  neededOwners: string[]
+) => {
+  const contract = new ethers.Contract(
+    contractAddress,
+    multisigAbi,
+    provider.getSigner(account)
+  );
+  await contract.initNewOwner(to, neededOwners);
+
+  return await getPendingOwners(contractAddress, account);
+};
+
+export const approveOwner = async (
+  contractAddress: string,
+  account: string,
+  to: string
+) => {
+  const contract = new ethers.Contract(
+    contractAddress,
+    multisigAbi,
+    provider.getSigner(account)
+  );
+  await contract.confirmNewOwner(to);
+
+  return await getPendingOwners(contractAddress, account);
+};
+
+export const execOwner = async (
+  contractAddress: string,
+  account: string,
+  to: string
+) => {
+  const contract = new ethers.Contract(
+    contractAddress,
+    multisigAbi,
+    provider.getSigner(account)
+  );
+  const res = await contract.execNewOwner(to);
+  console.log(await res.wait());
+  return await getPendingOwners(contractAddress, account);
 };

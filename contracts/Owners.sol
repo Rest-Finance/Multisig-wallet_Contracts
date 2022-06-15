@@ -1,5 +1,6 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
+pragma experimental ABIEncoderV2;
 
 contract Owners {
     address[] public _owners;
@@ -42,6 +43,15 @@ contract Owners {
 
     function getOwners() public view onlyOwner returns (address[] memory) {
         return _owners;
+    }
+
+    function getPendingOwners()
+        public
+        view
+        onlyOwner
+        returns (PendingOwner[] memory)
+    {
+        return pendingOwners;
     }
 
     function initNewOwner(address ownerAddress, address[] memory neededOwners)
