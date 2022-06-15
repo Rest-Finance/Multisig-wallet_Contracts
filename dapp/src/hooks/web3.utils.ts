@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import erc20Abi from "../erc20.abi";
 import factoryAbi from "../factoryAbi";
 import multisigAbi from "../multisigAbi";
-import restTokenAbi from "../restToken.abi";
+import restTokenAbi from "./faucet/restToken.abi";
 
 export enum Steps {
   START = "start",
@@ -147,34 +147,6 @@ export const getContractsData = async (
   }
 };
 
-export const mintRestToken = async (account: string): Promise<void> => {
-  const token = tokens.find(({ name }) => name === "REST");
-  if (token) {
-    const tokenContract = new ethers.Contract(
-      token?.address,
-      restTokenAbi,
-      provider.getSigner(account)
-    );
-    await tokenContract.faucet(account);
-  }
-};
-
-export const addTokenToMetamask = async (account: string): Promise<void> => {
-  const token = tokens.find(({ name }) => name === "REST");
-  if (token)
-    await window.ethereum.request({
-      method: "wallet_watchAsset",
-      params: {
-        type: "ERC20", // Initially only supports ERC20, but eventually more!
-        options: {
-          address: "0x951AD67A75D520c11FD08F98Cb148cc2dD0f8b8A", // The address that the token is at.
-          symbol: "REST", // A ticker symbol or shorthand, up to 5 chars.
-          decimals: 18, // The number of decimals in the token
-        },
-      },
-    });
-};
-
 export const getPendingOwners = async (
   contractAddress: string,
   account: string
@@ -199,8 +171,8 @@ export const addAOwner = async (
     multisigAbi,
     provider.getSigner(account)
   );
-  await contract.initNewOwner(to, neededOwners);
-
+  const call = await contract.initNewOwner(to, neededOwners);
+  await call.wait();
   return await getPendingOwners(contractAddress, account);
 };
 
@@ -214,8 +186,8 @@ export const approveOwner = async (
     multisigAbi,
     provider.getSigner(account)
   );
-  await contract.confirmNewOwner(to);
-
+  const call = await contract.confirmNewOwner(to);
+  await call.wait();
   return await getPendingOwners(contractAddress, account);
 };
 
@@ -229,7 +201,7 @@ export const execOwner = async (
     multisigAbi,
     provider.getSigner(account)
   );
-  const res = await contract.execNewOwner(to);
-  console.log(await res.wait());
+  const call = await contract.execNewOwner(to);
+  await call.wait();
   return await getPendingOwners(contractAddress, account);
 };

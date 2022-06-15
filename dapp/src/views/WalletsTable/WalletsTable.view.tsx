@@ -7,16 +7,23 @@ export const WalletsTable: FC = () => {
   const [selectedRow, setSelectedRow] = useState<number>(-1);
   const { account, contracts } = useWeb3();
 
+  // const updateSelectedRow =
+
   return (
-    <div className="min-h-screen p-5 m-auto max-w-5xl">
+    <div className="">
       {account && (
         <div>
-          <div>
-            <CreateMultisigButton />
-            <div className="my-3">
-              <div className="flex text-violet-600 my-4 text-xl bg-slate-300 rounded p-2">
-                <p className="w-1/4">Wallet address</p>
-                <p className="w-1/4 border-x border-violet-600 text-center">
+          <div className="relative">
+          <div   className={`blur-${selectedRow < 0 ? "none" : "md"}`}>
+            <CreateMultisigButton /></div>
+            <div className={`my-3 `}>
+              <div
+                className={`·hidden md:flex justify-center flex-row text-violet-600 my-4 text-xl bg-slate-300 rounded p-2 blur-${
+                  selectedRow < 0 ? "none" : "md"
+                }`}
+              >
+                <p className="w-1/4 text-center">Wallet address</p>
+                <p className="w-1/4 border-x-2 border-violet-600 text-center">
                   Owners addresses
                 </p>
                 <p className="w-1/4 text-center">Balances</p>

@@ -1,15 +1,13 @@
-import { BigNumber, BigNumberish, ethers } from "ethers";
+import { BigNumberish } from "ethers";
 import { createContext, useContext, useEffect, useState } from "react";
-import { toast } from "react-toastify";
+
 import {
   connectToNetwork,
   createWallet,
   getContractsData,
   getAccount,
   Steps,
-  mintRestToken,
   getContractData,
-  addTokenToMetamask,
   IContractData,
   getPendingOwners,
   addAOwner,
@@ -17,12 +15,18 @@ import {
   execOwner,
 } from "./web3.utils";
 
-interface IPendingOwner {
-  at?: Date;
-  approvedBy?: string[];
-  from?: string;
-  neededOwners?: string[];
-  ownerAddress?: string;
+export interface IPendingOwner {
+  at: Date;
+  approvedBy: string[];
+  from: string;
+  neededOwners: string[];
+  ownerAddress: string;
+}
+
+export interface IMultisig {
+  address: string;
+  owners: string[];
+  balances: { address: string; name: string; balance: number }[];
 }
 
 interface IWeb3 {
@@ -32,8 +36,6 @@ interface IWeb3 {
   funcs: {
     handleOnConnect: () => Promise<void>;
     handleCreateWallet: () => Promise<void>;
-    handleMintToken: () => Promise<void>;
-    handleAddTokenToMetamask: () => Promise<void>;
     formatAddress: (address: string) => string;
     handleGetPendingOwners: (
       contractAddress: string
@@ -42,9 +44,15 @@ interface IWeb3 {
       contractAddress: string,
       to: string,
       neededOwners: string[]
-    ) => Promise<void>;
-    handleApproveOwner: (contractAddress: string, to: string) => Promise<void>;
-    handleExecOwner: (contractAddress: string, to: string) => Promise<void>;
+    ) => Promise<IPendingOwner[]>;
+    handleApproveOwner: (
+      contractAddress: string,
+      to: string
+    ) => Promise<IPendingOwner[]>;
+    handleExecOwner: (
+      contractAddress: string,
+      to: string
+    ) => Promise<IPendingOwner[]>;
   };
 }
 
@@ -54,17 +62,15 @@ const initialState = {
   funcs: {
     handleOnConnect: async () => {},
     handleCreateWallet: async () => {},
-    handleMintToken: async () => {},
-    handleAddTokenToMetamask: async () => {},
     formatAddress: (address: string) => "",
     handleGetPendingOwners: async () => [],
     handleAddAOwner: async (
       contractAddress: string,
       to: string,
       neededOwners: string[]
-    ) => {},
-    handleApproveOwner: async (contractAddress: string, to: string) => {},
-    handleExecOwner: async (contractAddress: string, to: string) => {}, 
+    ) => [],
+    handleApproveOwner: async (contractAddress: string, to: string) => [],
+    handleExecOwner: async (contractAddress: string, to: string) => [],
   },
 };
 
@@ -112,16 +118,6 @@ export const InitWeb3 = () => {
     }
   };
 
-  const handleMintToken = async (): Promise<void> => {
-    if (!window.ethereum || !account) toast("You need to connect first !");
-    if (account) await mintRestToken(account);
-  };
-
-  const handleAddTokenToMetamask = async (): Promise<void> => {
-    if (!window.ethereum || !account) toast("You need to connect first !");
-    if (account) await addTokenToMetamask(account);
-  };
-
   const formatAddress = (address: string) => {
     const truncateRegex = /^(0x[a-zA-Z0-9]{4})[a-zA-Z0-9]+([a-zA-Z0-9]{4})$/;
     const match = address.match(truncateRegex);
@@ -156,30 +152,33 @@ export const InitWeb3 = () => {
     contractAddress: string,
     to: string,
     neededOwners: string[]
-  ) => {
+  ): Promise<IPendingOwner[]> => {
     if (account) {
-      const pendingOwners = await addAOwner(
-        contractAddress,
-        account,
-        to,
-        neededOwners
-      );
-      console.log(pendingOwners);
+      return await addAOwner(contractAddress, account, to, neededOwners);
     }
+    return [];
   };
 
-  const handleApproveOwner = async (contractAddress: string, to: string) => {
+  const handleApproveOwner = async (
+    contractAddress: string,
+    to: string
+  ): Promise<IPendingOwner[]> => {
     if (account) {
-      const pendingOwners = await approveOwner(contractAddress, account, to);
-      console.log(pendingOwners);
+      return await approveOwner(contractAddress, account, to);
     }
+    return [];
   };
 
-  const handleExecOwner = async (contractAddress: string, to: string) => {
+  const handleExecOwner = async (
+    contractAddress: string,
+    to: string
+  ): Promise<IPendingOwner[]> => {
     if (account) {
       const pendingOwners = await execOwner(contractAddress, account, to);
-      console.log(pendingOwners);
+      await getContractsData(account, contracts, setContracts);
+      return pendingOwners;
     }
+    return [];
   };
 
   useEffect(() => {
@@ -199,8 +198,6 @@ export const InitWeb3 = () => {
     funcs: {
       handleOnConnect,
       handleCreateWallet,
-      handleMintToken,
-      handleAddTokenToMetamask,
       formatAddress,
       handleGetPendingOwners,
       handleAddAOwner,

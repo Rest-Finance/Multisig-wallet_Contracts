@@ -8,12 +8,16 @@ export const Header: FC = () => {
     account,
   } = useWeb3();
   return (
-    <div className="py-5 px-2 flex justify-between items-center">
+    <div className="m-auto max-w-5xl flex justify-between items-center">
       <div>
-        <h1 className="text-3xl font-bold tracking-widest">MULTISIG</h1>
+        <img src="/MULTISIG.png" className="w-52" />
       </div>
       <div className="text-right">
-        <LightButton onClick={handleOnConnect} text={account ? account : "Connect wallet"} disabled={!!account} />
+        <LightButton
+          onClick={handleOnConnect}
+          text={account ? account : "Connect wallet"}
+          disabled={!!account}
+        />
       </div>
     </div>
   );

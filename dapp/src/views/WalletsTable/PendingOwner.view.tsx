@@ -1,36 +1,40 @@
 import { FC } from "react";
-import { useWeb3 } from "../../hooks";
+import { IMultisig, IPendingOwner, useWeb3 } from "../../hooks";
 
 type PendingOwnerType = {
-  pendingOwner: {
-    approvedBy: string[];
-    neededOwners: string[];
-    ownerAddress: string;
-    from: string;
-    at: Date;
-  };
-  contract: {
-    address: string;
-    owners: string[];
-    balances: { address: string; name: string; balance: number }[];
-  };
+  pendingOwner: IPendingOwner;
+  contract: IMultisig;
+  setPendingOwners: (
+    pendingOwners: IPendingOwner[]
+  ) => void;
 };
 
 export const PendingOwner: FC<PendingOwnerType> = ({
   pendingOwner,
   contract,
+  setPendingOwners,
 }) => {
   const {
-    funcs: {
-      formatAddress,
-      handleApproveOwner,
-      handleExecOwner,
-    },
+    funcs: { formatAddress, handleApproveOwner, handleExecOwner },
     account,
   } = useWeb3();
 
+  const confirm = async () => {
+    setPendingOwners(
+      await handleExecOwner(contract.address, pendingOwner.ownerAddress)
+    );
+  };
+
+  const approve = async () => {
+    setPendingOwners(
+      await handleApproveOwner(contract.address, pendingOwner.ownerAddress)
+    );
+  };
   return (
-    <div className="border rounded p-2 bg-slate-800 flex flex-col w-1/2 mb-1">
+    <div
+      key={pendingOwner.ownerAddress}
+      className="border rounded p-2 bg-slate-800 flex flex-col w-1/2 mb-1"
+    >
       <p>
         <span className="font-bold">Pending owner address: </span>
         {formatAddress(pendingOwner.ownerAddress)}
@@ -50,9 +54,7 @@ export const PendingOwner: FC<PendingOwnerType> = ({
           .includes(account as string) && (
           <span
             className="border border-violet-600 bg-violet-600 rounded p-2 text-center"
-            onClick={async () =>
-              handleApproveOwner(contract.address, pendingOwner.ownerAddress)
-            }
+            onClick={approve}
           >
             Approve
           </span>
@@ -60,9 +62,7 @@ export const PendingOwner: FC<PendingOwnerType> = ({
       {pendingOwner.approvedBy.length === pendingOwner.neededOwners.length && (
         <span
           className="border border-violet-600 bg-violet-600 rounded p-2 text-center"
-          onClick={() =>
-            handleExecOwner(contract.address, pendingOwner.ownerAddress)
-          }
+          onClick={confirm}
         >
           Confirm
         </span>

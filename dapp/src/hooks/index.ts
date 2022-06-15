@@ -1,1 +1,2 @@
-export * from './web3.hook'
+export * from "./faucet";
+export * from "./web3.hook";
