@@ -4,7 +4,7 @@ import { useWeb3 } from "../../hooks";
 
 export const Header: FC = () => {
   const {
-    funcs: { handleOnConnect },
+    funcs: { handleOnConnect, formatAddress },
     account,
   } = useWeb3();
   return (
@@ -15,7 +15,7 @@ export const Header: FC = () => {
       <div className="text-right">
         <LightButton
           onClick={handleOnConnect}
-          text={account ? account : "Connect wallet"}
+          text={account ? formatAddress(account) : "Connect wallet"}
           disabled={!!account}
         />
       </div>

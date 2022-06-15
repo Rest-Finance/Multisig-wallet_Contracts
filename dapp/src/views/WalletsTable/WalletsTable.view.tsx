@@ -8,11 +8,11 @@ import { WalletDashboard } from "./WalletDashboard.view";
 export const WalletsTable: FC = () => {
   const [selectedRow, setSelectedRow] = useState<number>(-1);
   const { account, contracts } = useWeb3();
-  const className = `relative blur-${selectedRow < 0 ? "none" : "lg"}`;
+
   return (
     <div className={`relative`}>
       {account && (
-        <div className={className}>
+        <div id={selectedRow >= 0 ? "blur-it" : ""}>
           <div>
             <CreateMultisigButton />
           </div>

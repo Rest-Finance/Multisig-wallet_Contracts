@@ -15,3 +15,8 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+#blur-it {
+  filter: blur(12px);
+  transition: 1s;
+}
